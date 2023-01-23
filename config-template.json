@@ -1,0 +1,5 @@
+{
+  "webhookUrl": "REPLACE WITH URL FOR WEBHOSTING",
+  "token": "REPLACE WITH BOT ACCESS TOKEN",
+  "port": 8080
+}
