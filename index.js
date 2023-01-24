@@ -51,12 +51,23 @@ framework.on('spawn', (bot, id, actorId) => {
 
 //Process incoming messages
 
+/*
+When the bot is mentioned and the bitcoin command is given it reaches out for 
+helper function to get price from coin gecko api
+*/
+
 framework.hears('bitcoin', function (bot, trigger) {
   console.log("someone asked for a the price of bitcoin");
   responded = true;
   get_bitcoin(bot);
 });
 
+/*
+function name : get_bitcoin
+description : reaches out to the coingecko api to retrieve price of bitcoin,
+              then uses the node bot framework to send message to Webex space
+              with current price details
+*/
 function get_bitcoin(bot) {
   const options = {
     method: "GET",
@@ -77,10 +88,47 @@ function get_bitcoin(bot) {
   });
 }
 
+/*
+When the bot is mentioned and the ethereum command is given it reaches out for 
+helper function to get price from coin gecko api
+*/
+
+framework.hears('ethereum', function (bot, trigger) {
+  console.log("someone asked for a the price of Ethereum");
+  responded = true;
+  get_ethereum(bot);
+});
+
+/*
+function name : get_ethereum
+description : reaches out to the coingecko api to retrieve price of ethereum,
+              then uses the node bot framework to send message to Webex space
+              with current price details
+*/
+function get_ethereum(bot) {
+  const options = {
+    method: "GET",
+    url: `https://api.coingecko.com/api/v3/simple/price?ids=ethereum&vs_currencies=usd`,
+    headers: {
+      "content-type": "application/json"
+    },
+  };
+
+  request(options, function (error, response, body) {
+    const json = JSON.parse(body);
+    if (error) {
+      console.log("could not get bitcoin price");
+    }
+    console.log("Status Code : ", response.statusCode);
+    console.log("request is completed, fetched tokens: " + JSON.stringify(json));
+    bot.say("markdown", "The price of ETH is $" + JSON.stringify(json["ethereum"]["usd"]));
+  });
+}
+
 /* On mention with command
 ex User enters @botname help, the bot will write back in markdown
 */
-framework.hears(/help|what can i (do|say)|what (can|do) you do/i, function (bot, trigger) {
+framework.hears("help", function (bot, trigger) {
   console.log(`someone needs help! They asked ${trigger.text}`);
   bot.say(`Hello ${trigger.person.displayName}.`)
     .then(() => sendHelp(bot))
@@ -151,7 +199,7 @@ framework.hears("say hi to everyone", function (bot) {
 });
 
 // Buttons & Cards data
-let coinCard = 'REPLACE WITH JSON DATA COLLECTED FROM DEV PORTAL'
+let coinCard = 'REPLACE WITH JSON DATA COLLECTED FROM https://developer.webex.com/buttons-and-cards-designer'
 
 /* On mention with coin me
 ex User enters @botname 'coin me' phrase, the bot will produce a personalized card - https://developer.webex.com/docs/api/guides/cards
@@ -168,6 +216,11 @@ framework.on('attachmentAction', function (bot, trigger) {
   }
   let attachmentAction = trigger.attachmentAction;
   console.log(attachmentAction);
+  if (attachmentAction.inputs.currency == 'ethereum') {
+    get_ethereum(bot);
+  } else {
+    get_bitcoin(bot);
+  }
 });
 
 
@@ -197,7 +250,6 @@ framework.hears(/.*/, function (bot, trigger) {
     .then(() => sendHelp(bot))
     .catch((e) => console.error(`Problem in the unexepected command hander: ${e.message}`));
   }
-  responded = false;
 });
 
 
@@ -206,7 +258,7 @@ function sendHelp(bot) {
     '1. **framework**   (learn more about the Webex Bot Framework) \n' +
     '2. **info**  (get your personal details) \n' +
     '3. **space**  (get details about this space) \n' +
-    '4. **card me** (a cool card!) \n' +
+    '4. **coin me** (a cool card!) \n' +
     '5. **say hi to everyone** (everyone gets a greeting using a call to the Webex SDK) \n' +
     '6. **reply** (have bot reply to your message) \n' +
     '7. **help** (what you are reading now)');
