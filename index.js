@@ -261,7 +261,9 @@ function sendHelp(bot) {
     '4. **coin me** (a cool card!) \n' +
     '5. **say hi to everyone** (everyone gets a greeting using a call to the Webex SDK) \n' +
     '6. **reply** (have bot reply to your message) \n' +
-    '7. **help** (what you are reading now)');
+    '7. **help** (what you are reading now) \n' +
+    '8. **bitcoin** (get the current price of bitcoin -> USD) \n' +
+    '9. **ethereum** (get the current price of ethereum -> USD)');
 }
 
 
